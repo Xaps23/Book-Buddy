@@ -10,5 +10,6 @@ class TrainingPipeline:
     def start_training_pipeline(self):
         '''Start the training pipeline by initiating data ingestion.
         :return: None
+
         '''
         self.data_ingestion.initiate_data_ingestion()

@@ -1,13 +1,11 @@
 artifacts_config:
   artifacts_dir: artifacts
 
-  
+
   data_ingestion_config:
     dataset_download_url: https://github.com/Xaps23/Book-Buddy/raw/refs/heads/main/books_data.zip
-    dataset_dir: dataset
-    ingested_dir: ingested_data
-    raw_data_dir: raw_data
-    data_ingestion:
-    source: ""
-  # other config values
-    other_section: some_value
+    dataset_dir: "artifacts/dataset"
+    ingested_dir: "artifacts/ingested_data"
+    raw_data_dir: "artifacts/raw_data"
+
+  
