@@ -4,7 +4,7 @@ import yaml
 from books_recommender.logger.log import logging
 from books_recommender.utils.util import read_yaml_file
 from books_recommender.exception.exception_handler import AppException
-from books_recommender.entity.config_entity import DataIngestionConfig 
+from books_recommender.entity.config_entity import DataIngestionConfig, DataValidationConfig
 from books_recommender.constant import *
 
 class AppConfiguration:
@@ -13,6 +13,7 @@ class AppConfiguration:
             with open(config_file_path, 'r') as f:
               config = yaml.safe_load(f)
             self.data_ingestion = config["artifacts_config"]["data_ingestion_config"]
+            self.data_validation = config["artifacts_config"]["data_validation_config"]
         except Exception as e:
             raise AppException(e, sys) from e
 
@@ -37,5 +38,25 @@ class AppConfiguration:
 
         except Exception as e:
             raise AppException(e, sys) from e
+        
+    def get_data_validation_config(self) -> DataValidationConfig:
+            try:
+                data_validation_config = self.data_validation
+                clean_data_dir = data_validation_config['clean_data_dir']
+                serialized_object_dir = data_validation_config['serialized_object_dir']
+                books_csv_file = data_validation_config['books_csv_file']
+                ratings_csv_file = data_validation_config['ratings_csv_file']
+    
+                response = DataValidationConfig(
+                    clean_data_dir=clean_data_dir,
+                    serialized_object_dir=serialized_object_dir,
+                    books_csv_file=books_csv_file,
+                    ratings_csv_file=ratings_csv_file
+                )
+                logging.info(f"Data Validation Config: {response}")
+                return response
+    
+            except Exception as e:
+                raise AppException(e, sys) from e
 
 

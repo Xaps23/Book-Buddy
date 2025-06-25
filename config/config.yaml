@@ -9,3 +9,9 @@ artifacts_config:
     raw_data_dir: "artifacts/raw_data"
 
   
+  data_validation_config:
+
+    clean_data_dir: "artifacts/clean_data"
+    serialized_object_dir: "artifacts/serialized_object"
+    books_csv_file: "BX-Books.csv"
+    ratings_csv_file: "BX-Book-Ratings.csv"
