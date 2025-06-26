@@ -24,7 +24,7 @@ class AppConfiguration:
         try:
             data_ingestion_config = self.data_ingestion
             response = DataIngestionConfig(
-                dataset_dowmload_url=data_ingestion_config['dataset_download_url'],
+                dataset_download_url=data_ingestion_config['dataset_download_url'],
                 raw_data_dir=data_ingestion_config['raw_data_dir'],
                 ingested_dir=data_ingestion_config['ingested_data_dir']
             )
