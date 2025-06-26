@@ -29,7 +29,7 @@ def get_detailed_error_message(error_message: Exception, error_detail: sys) -> s
         error_message = f"Error occurred in script: [{file_name}] at line number: [{line_number}] with error message: [{str(error_message)}]"
         return error_message
 def __repr__(self):
-        return AppException.__name__.str__()
+        return AppException.__name__
 
 def __str__(self):
         return  self.error_message    

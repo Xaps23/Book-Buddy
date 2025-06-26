@@ -1,6 +1,6 @@
 import os 
 import sys
-import ast 
+import ast
 import pandas as pd
 import pickle
 from books_recommender.logger.log import logging
@@ -16,65 +16,56 @@ class DataValidation:
 
     def preprocess_data(self):
         try:
-            # Load the books and ratings data
-            books_df = pd.read_csv(self.data_validation_config.books_csv_file, sep=";",error_bad_lines=False, encoding='latin-1')
-            ratings_df = pd.read_csv(self.data_validation_config.ratings_csv_file, sep=";",error_bad_lines=False, encoding='latin-1')
+            ratings = pd.read_csv(self.data_validation_config.ratings_csv_file, sep=";", error_bad_lines=False, encoding='latin-1')
+            books = pd.read_csv(self.data_validation_config.books_csv_file, sep=";", error_bad_lines=False, encoding='latin-1') 
 
-            # Convert 'book_id' to string type
-            books_df['book_id'] = books_df['book_id'].astype(str)
-            ratings_df['book_id'] = ratings_df['book_id'].astype(str)
+            logging.info(f" Shape of ratings data file: {ratings.shape}")
+            logging.info(f" Shape of books data file: {books.shape}")
 
-            # Save preprocessed data
-            preprocessed_books_path = os.path.join(self.data_validation_config.clean_data_dir, 'preprocessed_books.csv')
-            preprocessed_ratings_path = os.path.join(self.data_validation_config.clean_data_dir, 'preprocessed_ratings.csv')
-            books_df.to_csv(preprocessed_books_path, index=False)
-            ratings_df.to_csv(preprocessed_ratings_path, index=False)
+            books = books[['ISBN', 'Book-Title', 'Book-Author', 'Year-Of-Publication', 'Publisher', 'Image-URL-S', 'Image-URL-M', 'Image-URL-L']]
 
-            logging.info(f"Preprocessed books data saved to {preprocessed_books_path}")
-            logging.info(f"Preprocessed ratings data saved to {preprocessed_ratings_path}")
+            books.rename(columns={'Book-Title': 'title',
+                                 'Book-Author': 'author',
+                                 "Year-Of-Publication": 'year',
+                                 "Publisher": 'publisher',
+                                 "Image-URL-S": 'image_url',}, inplace=True)
+            
 
+            ratings.rename(columns={"User-ID": 'user_id',
+                                    'Book-Rating': 'rating'}, inplace=True)
+            
+            x = ratings['user_id'].value_counts() > 200
+            y = x[x].index
+            ratings = ratings[ratings['user_id'].isin(y)]
 
-    def validate_data(self):
-        """
-        Validates the ingested data.
-        """
-        try:
-            # Load the books and ratings data
-            books_df = pd.read_csv(self.data_validation_config.books_csv_file)
-            ratings_df = pd.read_csv(self.data_validation_config.ratings_csv_file)
+            ratings_with_books = ratings.merge(books, on='ISBN')
+            number_rating = ratings_with_books.groupby('title')['rating'].count().reset_index()
+            number_rating.rename(columns={'rating': 'number_of_ratings'}, inplace=True)
+            final_rating = ratings_with_books.merge(number_rating, on='title')
 
-            # Check for duplicates in books data
-            if books_df.duplicated().any():
-                logging.warning("Duplicates found in books data.")
-                books_df.drop_duplicates(inplace=True)
-                logging.info("Duplicates removed from books data.")
+            final_rating = final_rating[final_rating['rating_y']>=50]
 
-            # Check for missing values in books data
-            if books_df.isnull().values.any():
-                logging.warning("Missing values found in books data.")
-                books_df.fillna(method='ffill', inplace=True)
-                logging.info("Missing values filled in books data.")
+            final_rating.drop_duplicates(['user_id', 'title'],inplace=True)
+            logging.info(f" Shape of final_rating data: {final_rating.shape}")
+            
+            #Saving the cleaned data for transformation
+            os.makedirs(self.data_validation_config.clean_data_dir, exist_ok=True)
+            final_rating.to_csv(os.path.join(self.data_validation_config.clean_data_dir, 'clean_data.csv'), index=False)
+            logging.info(f"Saved cleaned data to {self.data_validation_config.clean_data_dir}")
 
-            # Check for duplicates in ratings data
-            if ratings_df.duplicated().any():
-                logging.warning("Duplicates found in ratings data.")
-                ratings_df.drop_duplicates(inplace=True)
-                logging.info("Duplicates removed from ratings data.")
-
-            # Check for missing values in ratings data
-            if ratings_df.isnull().values.any():
-                logging.warning("Missing values found in ratings data.")
-                ratings_df.fillna(method='ffill', inplace=True)
-                logging.info("Missing values filled in ratings data.")
-
-            # Save cleaned data
-            cleaned_books_path = os.path.join(self.data_validation_config.clean_data_dir, 'cleaned_books.csv')
-            cleaned_ratings_path = os.path.join(self.data_validation_config.clean_data_dir, 'cleaned_ratings.csv')
-            books_df.to_csv(cleaned_books_path, index=False)
-            ratings_df.to_csv(cleaned_ratings_path, index=False)
-
-            logging.info(f"Cleaned books data saved to {cleaned_books_path}")
-            logging.info(f"Cleaned ratings data saved to {cleaned_ratings_path}")
+            #saving final_rating objects fro web app
+            os.makedirs(self.data_validation_config.serialized_object_dir, exist_ok=True)
+            pickle.dump(final_rating,open(os.path.join(self.data_validation_config.serialized_object_dir, 'final_rating.pkl'),'wb'))
+            logging.info(f"Saved final_rating serialization object to {self.data_validation_config.serialized_object_dir}")
 
         except Exception as e:
             raise AppException(e, sys) from e
+        
+    def initiate_data_validation(self):
+            try:
+                logging.info(f"{'='*20} Data Validation log started.{'='*20} ")
+                self.preprocess_data()
+                logging.info(f"{'='*20} Data Validation log completed.{'='*20} \n\n")
+            except Exception as e:
+                raise AppException(e, sys) from e
+        

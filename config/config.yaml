@@ -15,3 +15,8 @@ artifacts_config:
     serialized_object_dir: "artifacts/serialized_object"
     books_csv_file: "BX-Books.csv"
     ratings_csv_file: "BX-Book-Ratings.csv"
+
+  data_transformation_config:
+    transformed_data_dir: "artifacts/transformed_data"
+    
+ 
