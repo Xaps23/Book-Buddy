@@ -11,12 +11,19 @@ artifacts_config:
   
   data_validation_config:
 
-    clean_data_dir: "artifacts/clean_data"
-    serialized_object_dir: "artifacts/serialized_object"
+    clean_data_dir: artifacts/clean_data
+    serialized_objects_dir: artifacts/serialized_objects
     books_csv_file: "BX-Books.csv"
     ratings_csv_file: "BX-Book-Ratings.csv"
 
   data_transformation_config:
     transformed_data_dir: "artifacts/transformed_data"
-    
+
+
+
+  model_trainer_config:
+    trained_model_dir: trained_model
+    trained_model_name: model.pkl
+
+  
  
