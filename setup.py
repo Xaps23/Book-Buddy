@@ -11,7 +11,7 @@ LIST_OF_REQUIREMENTS = []
 setup(
     name=SRC_REPO,
     version="0.0.1",
-    author="Xaps23",  # Consider using AUTHOR_USER_NAME here
+    author="Xaps23",  
     description="A small local package for ML-Based Book Recommendations",
     long_description=long_description,
     long_description_content_type="text/markdown",

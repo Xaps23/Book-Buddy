@@ -12,18 +12,26 @@ artifacts_config:
   data_validation_config:
 
     clean_data_dir: artifacts/clean_data
-    serialized_objects_dir: artifacts/serialized_objects
-    books_csv_file: "BX-Books.csv"
-    ratings_csv_file: "BX-Book-Ratings.csv"
+    serialized_object_dir: artifacts/serialized_objects
+    books_csv_file: artifacts/ingested_data/BX-Books.csv
+    ratings_csv_file: artifacts/ingested_data/BX-Book-Ratings.csv
 
   data_transformation_config:
-    transformed_data_dir: "artifacts/transformed_data"
+    clean_data_dir: artifacts/clean_data/clean_data.csv
+    transformed_data_dir: artifacts/transformed_data
 
 
 
-  model_trainer_config:
-    trained_model_dir: trained_model
-    trained_model_name: model.pkl
+model_trainer_config:
+  trained_model_dir: trained_model
+  trained_model_name: model.pkl
+  transformed_data_file_dir: transformed_data
+  serialized_object_dir: artifacts/serialized_models
 
+
+recommendation_config:
+  book_pivot_serialized_objects: artifacts/serialized_object/book_pivot.pkl
+  final_rating_serialized_objects: artifacts/serialized_object/final_rating.pkl
+  trained_model_path: artifacts/trained_model/model.pkl
   
  

@@ -16,8 +16,8 @@ class DataValidation:
 
     def preprocess_data(self):
         try:
-            ratings = pd.read_csv(self.data_validation_config.ratings_csv_file, sep=";", on_bad_lines=False, encoding='latin-1')
-            books = pd.read_csv(self.data_validation_config.books_csv_file, sep=";", error_bad_lines=False, encoding='latin-1') 
+            ratings = pd.read_csv(self.data_validation_config.ratings_csv_file, sep=";", on_bad_lines='skip', encoding='latin-1')
+            books = pd.read_csv(self.data_validation_config.books_csv_file, sep=";", on_bad_lines='skip', encoding='latin-1') 
 
             logging.info(f" Shape of ratings data file: {ratings.shape}")
             logging.info(f" Shape of books data file: {books.shape}")
@@ -43,7 +43,7 @@ class DataValidation:
             number_rating.rename(columns={'rating': 'number_of_ratings'}, inplace=True)
             final_rating = ratings_with_books.merge(number_rating, on='title')
 
-            final_rating = final_rating[final_rating['rating_y']>=50]
+            final_rating = final_rating[final_rating['number_of_ratings']>=50]
 
             final_rating.drop_duplicates(['user_id', 'title'],inplace=True)
             logging.info(f" Shape of final_rating data: {final_rating.shape}")
@@ -54,9 +54,9 @@ class DataValidation:
             logging.info(f"Saved cleaned data to {self.data_validation_config.clean_data_dir}")
 
             #saving final_rating objects fro web app
-            os.makedirs(self.data_validation_config.serialized_object_dir, exist_ok=True)
-            pickle.dump(final_rating,open(os.path.join(self.data_validation_config.serialized_object_dir, 'final_rating.pkl'),'wb'))
-            logging.info(f"Saved final_rating serialization object to {self.data_validation_config.serialized_object_dir}")
+            os.makedirs(self.data_validation_config.serialized_objects_dir, exist_ok=True)
+            pickle.dump(final_rating,open(os.path.join(self.data_validation_config.serialized_objects_dir, 'final_rating.pkl'),'wb'))
+            logging.info(f"Saved final_rating serialization object to {self.data_validation_config.serialized_objects_dir}")
 
         except Exception as e:
             raise AppException(e, sys) from e
